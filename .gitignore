@@ -1,0 +1,14 @@
+# Environment
+.env
+*.pyc
+__pycache__/
+
+# Logs
+logs/*.json
+logs/*.txt
+
+# Content output (optional - keep or remove from git)
+# content/
+
+# macOS
+.DS_Store
