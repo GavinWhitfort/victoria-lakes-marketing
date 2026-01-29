@@ -1,0 +1,41 @@
+name: Reddit Pain Point Scanner
+
+on:
+  schedule:
+    # Run every day at 8 AM AEST (9 PM UTC)
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install praw python-dotenv
+        
+    - name: Run Pain Point Scanner
+      env:
+        REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+        REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+        REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+      run: |
+        python scripts/reddit_pain_point_scanner.py
+        
+    - name: Commit pain points
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Pain Point Scanner Bot"
+        git add pain_points/
+        git diff --quiet && git diff --staged --quiet || git commit -m "Daily pain points: $(date +'%Y-%m-%d')"
+        git push || true
